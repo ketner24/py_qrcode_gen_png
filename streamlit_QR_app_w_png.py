@@ -41,16 +41,19 @@ if text:
     if logo_file:
         logo = Image.open(logo_file)
         
-        # Calculate size (Logo should usually be ~20% of QR size)
+        # Convert logo to RGBA to ensure it handles transparency correctly
+        logo = logo.convert("RGBA")
+        
+        # Calculate size 
         width, height = qr_img.size
         logo_size = width // 5 
-        logo = logo.resize((logo_size, logo_size))
+        logo = logo.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
         
         # Find the center position
         pos = ((width - logo_size) // 2, (height - logo_size) // 2)
         
-        # Paste the logo onto the QR code
-        qr_img.paste(logo, pos)
+        # Paste the logo onto the QR code using the logo itself as the mask
+        qr_img.paste(logo, pos, logo)
 
     # 4. Display and Download
     st.write(f'QR Code generated for **{text}**:')
@@ -65,4 +68,5 @@ if text:
         data=byte_im,
         file_name="custom_qrcode.png",
         mime="image/png"
+
     )
